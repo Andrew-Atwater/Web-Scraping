@@ -33,4 +33,4 @@ in the dataset. You must include your histogram in your write-up.
 write-up. Create a bar plot to visualize the number of articles published in each year since
 2023, and include the bar plot in your write-up.
 (f) What is the mean citation count of the articles for each publication year? Include your answer
-in your write-up. Create a bar plot to visualize the mean cita
+in your write-up. Create a bar plot to visualize the mean citation count of the articles for each publication year, and include the bar plot in your write-up.

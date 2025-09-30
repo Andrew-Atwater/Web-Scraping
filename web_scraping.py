@@ -40,7 +40,12 @@ def scroll():
             break
 
 def nextPage():
-    pass
+    next_button = driver.find_element(By.XPATH, '//*[@class = "gs_ico gs_ico_nav_next]')
+    try:    
+        if next_button:
+            driver.execute_script("arguments[0].click();", next_button)
+    except Exception:
+        pass
 
 def scrapePage():
     rows = []
@@ -78,6 +83,7 @@ def scrapePage():
         except Exception:
             pass
         
+        
         rows.append(
             {
                 "title" : title,
@@ -85,11 +91,14 @@ def scrapePage():
                 "cited_by" : citedBy,
             }
         )
+        try:
+            scroll()
+        except Exception:
+            nextPage()
     return rows
 
-    try:
-        scroll()
-    except Exception:
-        nextPage()
+def main():
+    driver.close()
 
-#start page crawl
+if __name__ == "__main__":
+    main()
