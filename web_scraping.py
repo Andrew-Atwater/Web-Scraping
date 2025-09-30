@@ -43,8 +43,9 @@ def nextPage():
     next_button = driver.find_element(By.XPATH, '//*[@class = "gs_ico gs_ico_nav_next"]')
     page_num = 1
     try:    
-        if next_button and page_num <= 100:
+        if next_button and page_num <= 10:
             driver.execute_script("arguments[0].click();", next_button)
+            page_num += 1
     except Exception:
         pass
 
@@ -102,7 +103,8 @@ def startScrape():
     return rows
 
 def main():
-    startScrape()
+    dataframe = startScrape()
+    print(dataframe)
     driver.close()
 
 if __name__ == "__main__":
