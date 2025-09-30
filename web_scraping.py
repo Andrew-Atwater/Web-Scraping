@@ -10,6 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import re
 import pandas as pd
+import random
 
 service = Service(executable_path = "/chromedriver/chromedriver-win64")
 options = webdriver.ChromeOptions()
@@ -21,20 +22,25 @@ url = "https://scholar.google.com/scholar?as_ylo=2023&q=machine+learning&hl=en&a
 driver.get(url)
 time.sleep(5)
 
-scroll_pause_time = 10
-
 screen_height = driver.execute_script("return window.screen.height;")
 
-i = 1
-while True: #scroll function
-    driver.execute_script("window.scrollTo(0, {screen_height} * {i});").format( #setting up window size, scroll speed
-        screen_height = screen_height, i = i
-    )
-    i += 1
-    time.sleep(scroll_pause_time)
-    scroll_height = driver.execute_script("return document.body.scrollHeight;")
-    if ((screen_height*i > scroll_height) or (i > 20)):
-        break
+def humanSleep(low = 0.5, high = 2.0):
+    time.sleep(random.uniform(low, high))
+
+def scroll():
+    i = 1
+    while True: #scroll function
+        driver.execute_script("window.scrollTo(0, {screen_height} * {i});").format( #setting up window size, scroll speed
+            screen_height = screen_height, i = i
+        )
+        i += 1
+        humanSleep()
+        scroll_height = driver.execute_script("return document.body.scrollHeight;")
+        if ((screen_height*i > scroll_height) or (i > 20)):
+            break
+
+def nextPage():
+    pass
 
 def scrapePage():
     rows = []
@@ -50,13 +56,13 @@ def scrapePage():
             title = title_el.text.strip()
         except Exception:
             title = ""
-
+        humanSleep()
         try:
             pubinfo_el = c.find_element(By.CSS_SELECTOR, "div.gs_a")
             pubInfo = pubinfo_el.text.strip()
         except Exception:
             pubInfo = ""
-
+        humanSleep()
         citedBy = 0
         try:
             footer_links = c.find_elements(By.CSS_SELECTOR, ".gs_fl a")
@@ -71,7 +77,7 @@ def scrapePage():
                     break
         except Exception:
             pass
-
+        
         rows.append(
             {
                 "title" : title,
@@ -80,3 +86,10 @@ def scrapePage():
             }
         )
     return rows
+
+    try:
+        scroll()
+    except Exception:
+        nextPage()
+
+#start page crawl
