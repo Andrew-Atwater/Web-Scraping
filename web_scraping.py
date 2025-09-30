@@ -49,7 +49,7 @@ def scrollViewport(driver, css_card = "div.gs_ri", step_ratio = 0.95, max_steps 
             break
 
         driver.execute_script("window.scrollBy(0, Math.floor(window.innerHeight * arguments[0]));", step_ratio)
-        humanSleep(1, 2.2)
+        humanSleep(1.0, 1.2)
 
 def nextPage():
     next_button = driver.find_element(By.XPATH, '//*[@class = "gs_ico gs_ico_nav_next"]')
@@ -63,7 +63,7 @@ def nextPage():
 def scrapePage(driver):
     rows = []
 
-    WebDriverWait(driver, 10).until(
+    WebDriverWait(driver, 3).until(
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.gs_ri"))
     )
 
@@ -76,13 +76,13 @@ def scrapePage(driver):
             title = title_el.text.strip()
         except Exception:
             title = ""
-        humanSleep(0.5, 1.9)
+        humanSleep(0.5, 1.2)
         try:
             pubinfo_el = c.find_element(By.CSS_SELECTOR, "div.gs_a")
             pubInfo = pubinfo_el.text.strip()
         except Exception:
             pubInfo = ""
-        humanSleep(0.7, 2.2)
+        humanSleep(0.7, 1.5)
         citedBy = 0
         try:
             footer_links = c.find_elements(By.CSS_SELECTOR, ".gs_fl a")
@@ -112,7 +112,7 @@ def startScrape():
     all_rows = []
     page_index = 1
 
-    while page_index <= 10:
+    while page_index <= 100:
         page_rows = scrapePage(driver)
         all_rows.extend(page_rows)
 
@@ -122,9 +122,19 @@ def startScrape():
     return all_rows
 
 def main():
-    dataframe = startScrape()
-    print(dataframe)
-    driver.close()
+    data = startScrape()
+    
+    frame = pd.DataFrame(data, columns = ["title", "publication_info", "cited_by"])
+
+    #drop whitespace convert citations to ints
+    frame["title"] = frame["title"].fillna("").str.strip()
+    frame["publication_info"] = frame["publication_info"].fillna("").str.strip()
+    frame["cited_by"] = pd.to_numeric(frame.get("cited_by", 0), errors="coerce").fillna(0).astype(int)
+
+    savename = "google_scholar_scrape_ML.csv"
+    frame.to_csv(savename, index = False, encoding = "utf-8")
+
+    driver.quit()
 
 if __name__ == "__main__":
     main()
