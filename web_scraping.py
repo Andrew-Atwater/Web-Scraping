@@ -12,7 +12,7 @@ import re
 import pandas as pd
 import random
 
-service = Service(executable_path = "/chromedriver/chromedriver-win64")
+service = Service(executable_path = "C:/chromedriver/chromedriver-win64/chromedriver.exe")
 options = webdriver.ChromeOptions()
 options.add_argument("--ignore-certificate-errors")
 options.add_argument("--incognito")
