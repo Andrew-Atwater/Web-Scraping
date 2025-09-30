@@ -36,18 +36,18 @@ def scroll():
         i += 1
         humanSleep()
         scroll_height = driver.execute_script("return document.body.scrollHeight;")
-        if ((screen_height*i > scroll_height) or (i > 20)):
+        if (screen_height*i > scroll_height):
             break
 
 def nextPage():
-    next_button = driver.find_element(By.XPATH, '//*[@class = "gs_ico gs_ico_nav_next]')
+    next_button = driver.find_element(By.XPATH, '//*[@class = "gs_ico gs_ico_nav_next"]')
     try:    
         if next_button:
             driver.execute_script("arguments[0].click();", next_button)
     except Exception:
         pass
 
-def scrapePage():
+def startScrape():
     rows = []
 
     WebDriverWait(driver, 10).until(
@@ -93,11 +93,15 @@ def scrapePage():
         )
         try:
             scroll()
+            humanSleep()
         except Exception:
+            humanSleep()
             nextPage()
+            humanSleep()
     return rows
 
 def main():
+    startScrape()
     driver.close()
 
 if __name__ == "__main__":
