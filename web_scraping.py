@@ -24,37 +24,50 @@ time.sleep(5)
 
 screen_height = driver.execute_script("return window.screen.height;")
 
-def humanSleep(low = 0.5, high = 2.0):
+def humanSleep(low, high):
     time.sleep(random.uniform(low, high))
 
-def scroll():
-    i = 1
-    while True: #scroll function
-        driver.execute_script("window.scrollTo(0, {screen_height} * {i});").format( #setting up window size, scroll speed
-            screen_height = screen_height, i = i
+def scrollViewport(driver, css_card = "div.gs_ri", step_ratio = 0.95, max_steps = 20, max_idle = 3):
+    last_count = -1
+    idle = 0
+    for _ in range(max_steps):
+        cards = driver.find_elements(By.CSS_SELECTOR, css_card)
+        count = len(cards)
+        if count == last_count:
+            idle += 1
+        else:
+            idle, last_count = 0, count
+        
+        #check to see if at bottom
+
+        bottom = driver.execute_script(
+            "return (window.scrollY + window.innerHeight) >= "
+            "Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) -2;"
         )
-        i += 1
-        humanSleep()
-        scroll_height = driver.execute_script("return document.body.scrollHeight;")
-        if (screen_height*i > scroll_height):
+
+        if bottom and idle >= max_idle:
             break
+
+        driver.execute_script("window.scrollBy(0, Math.floor(window.innerHeight * arguments[0]));", step_ratio)
+        humanSleep(1, 2.2)
 
 def nextPage():
     next_button = driver.find_element(By.XPATH, '//*[@class = "gs_ico gs_ico_nav_next"]')
-    page_num = 1
     try:    
-        if next_button and page_num <= 10:
+        if next_button:
             driver.execute_script("arguments[0].click();", next_button)
             page_num += 1
     except Exception:
         pass
 
-def startScrape():
+def scrapePage(driver):
     rows = []
 
     WebDriverWait(driver, 10).until(
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.gs_ri"))
     )
+
+    scrollViewport(driver, css_card = "div.gs_ri", step_ratio = 0.95, max_steps = 20, max_idle = 3)
 
     cards = driver.find_elements(By.CSS_SELECTOR, "div.gs_ri")
     for c in cards:
@@ -63,13 +76,13 @@ def startScrape():
             title = title_el.text.strip()
         except Exception:
             title = ""
-        humanSleep()
+        humanSleep(0.5, 1.9)
         try:
             pubinfo_el = c.find_element(By.CSS_SELECTOR, "div.gs_a")
             pubInfo = pubinfo_el.text.strip()
         except Exception:
             pubInfo = ""
-        humanSleep()
+        humanSleep(0.7, 2.2)
         citedBy = 0
         try:
             footer_links = c.find_elements(By.CSS_SELECTOR, ".gs_fl a")
@@ -93,14 +106,20 @@ def startScrape():
                 "cited_by" : citedBy,
             }
         )
-        try:
-            scroll()
-            humanSleep()
-        except Exception:
-            humanSleep()
-            nextPage()
-            humanSleep()
     return rows
+
+def startScrape():
+    all_rows = []
+    page_index = 1
+
+    while page_index <= 10:
+        page_rows = scrapePage(driver)
+        all_rows.extend(page_rows)
+
+        nextPage()
+        page_index += 1
+
+    return all_rows
 
 def main():
     dataframe = startScrape()
