@@ -41,8 +41,9 @@ def scroll():
 
 def nextPage():
     next_button = driver.find_element(By.XPATH, '//*[@class = "gs_ico gs_ico_nav_next"]')
+    page_num = 1
     try:    
-        if next_button:
+        if next_button and page_num <= 100:
             driver.execute_script("arguments[0].click();", next_button)
     except Exception:
         pass
