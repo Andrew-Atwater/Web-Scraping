@@ -24,6 +24,10 @@ time.sleep(5)
 
 screen_height = driver.execute_script("return window.screen.height;")
 
+WebDriverWait(driver, 15).until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.gs_ri"))
+    )
+
 def humanSleep(low, high):
     time.sleep(random.uniform(low, high))
 
@@ -63,7 +67,7 @@ def nextPage():
 def scrapePage(driver):
     rows = []
 
-    WebDriverWait(driver, 3).until(
+    WebDriverWait(driver, 5).until(
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.gs_ri"))
     )
 
