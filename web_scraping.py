@@ -116,7 +116,7 @@ def startScrape():
     all_rows = []
     page_index = 1
 
-    while page_index <= 10:
+    while page_index <= 50:
         page_rows = scrapePage(driver)
         all_rows.extend(page_rows)
 
