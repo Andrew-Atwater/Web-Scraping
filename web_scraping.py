@@ -112,21 +112,30 @@ def scrapePage(driver):
         )
     return rows
 
-def startScrape():
+def startScrapeFromIndex(start_page = 1):
     all_rows = []
-    page_index = 1
-
-    while page_index <= 50:
-        page_rows = scrapePage(driver)
-        all_rows.extend(page_rows)
-
-        nextPage()
+    page_index = start_page
+    if start_page > 1:
+        for _ in range(start_page - 1):
+            scrollViewport(driver, css_card = "div.gs_ri", step_ratio = 0.95, max_steps = 20, max_idle = 3)
+            nextPage()
+            humanSleep(5.0, 10.0)
+    while page_index <= 10:
+        rows = scrapePage(driver)
+        all_rows.extend(rows)
         page_index += 1
+        nextPage()
+        humanSleep(5.0, 10.0)
 
     return all_rows
 
 def main():
-    data = startScrape()
+    data = startScrapeFromIndex(start_page = 1)
+    humanSleep(10.0, 15.0)
+    for i in range (1, 9):
+        data.extend(startScrapeFromIndex(start_page = i *10))
+        humanSleep(10.0, 15.0)
+        
     
     frame = pd.DataFrame(data, columns = ["title", "publication_info", "cited_by"])
 
