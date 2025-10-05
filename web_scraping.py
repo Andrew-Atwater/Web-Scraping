@@ -67,7 +67,7 @@ def nextPage():
 def scrapePage(driver):
     rows = []
 
-    WebDriverWait(driver, 5).until(
+    WebDriverWait(driver, 10).until(
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.gs_ri"))
     )
 
@@ -120,7 +120,7 @@ def startScrapeFromIndex(start_page = 1):
             scrollViewport(driver, css_card = "div.gs_ri", step_ratio = 0.95, max_steps = 20, max_idle = 3)
             nextPage()
             humanSleep(5.0, 10.0)
-    while page_index <= 10:
+    while page_index <= page_index + 10:
         rows = scrapePage(driver)
         all_rows.extend(rows)
         page_index += 1
